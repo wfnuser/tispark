@@ -82,4 +82,9 @@ public class UninitializedType extends DataType {
     throw new UnsupportedOperationException(
         "UninitializedType cannot be applied in calculation process.");
   }
+
+  @Override
+  public boolean isSupportPushDown() {
+    return false;
+  }
 }

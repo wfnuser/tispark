@@ -257,6 +257,10 @@ public class ProtoConverter extends Visitor<Expr, Object> {
               "Required column position info " + node.getName() + " is not in a valid context.");
     }
     Expr.Builder builder = Expr.newBuilder();
+
+    if (!node.getType().isSupportPushDown()) {
+      return builder.build();
+    }
     builder.setTp(ExprType.ColumnRef);
     CodecDataOutput cdo = new CodecDataOutput();
     // After switching to DAG request mode, expression value
@@ -264,7 +268,7 @@ public class ProtoConverter extends Visitor<Expr, Object> {
     // the first executor of a DAG request.
     IntegerCodec.writeLong(cdo, position);
     builder.setVal(cdo.toByteString());
-
+    builder.setFieldType(toPBFieldType(getType(node)));
     return builder.build();
   }
 
@@ -279,6 +283,7 @@ public class ProtoConverter extends Visitor<Expr, Object> {
       CodecDataOutput cdo = new CodecDataOutput();
       type.encode(cdo, EncodeType.PROTO, node.getValue());
       builder.setVal(cdo.toByteString());
+      builder.setFieldType(toPBFieldType(getType(node)));
     }
     return builder.build();
   }

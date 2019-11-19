@@ -16,7 +16,7 @@
 package org.apache.spark.sql.tispark
 
 import com.pingcap.tikv._
-import com.pingcap.tikv.columnar.{TiColumnVectorAdapter, TiColumnarBatch}
+import com.pingcap.tikv.columnar.TiColumnarBatchHelper
 import com.pingcap.tikv.meta.TiDAGRequest
 import com.pingcap.tikv.operation.SchemaInfer
 import com.pingcap.tikv.operation.transformer.RowTransformer
@@ -27,6 +27,7 @@ import com.pingcap.tispark.{TiPartition, TiTableReference}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.catalyst.{CatalystTypeConverters, InternalRow}
+import org.apache.spark.sql.vectorized.ColumnarBatch
 import org.apache.spark.{Partition, TaskContext, TaskKilledException}
 import org.slf4j.Logger
 import org.tikv.kvproto.Coprocessor.KeyRange
@@ -102,7 +103,7 @@ class TiRowRDD(override val dagRequest: TiDAGRequest,
     outputTypes.map(CatalystTypeConverters.createToCatalystConverter)
 
   override def compute(split: Partition, context: TaskContext): Iterator[InternalRow] =
-    new Iterator[Any] {
+    new Iterator[ColumnarBatch] {
       dagRequest.resolve()
 
       // bypass, sum return a long type
@@ -124,8 +125,8 @@ class TiRowRDD(override val dagRequest: TiDAGRequest,
         iterator.hasNext
       }
 
-      override def next(): TiColumnarBatch = {
-        new TiColumnarBatch(iterator.next)
+      override def next(): ColumnarBatch = {
+        TiColumnarBatchHelper.createColumnarBatch(iterator.next)
       }
     }.asInstanceOf[Iterator[InternalRow]]
 

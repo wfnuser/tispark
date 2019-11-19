@@ -540,11 +540,15 @@ public class TiDAGRequest implements Serializable {
       Executor.Builder executorBuilder,
       Map<ColumnRef, Integer> colOffsetInFieldMap) {
     Aggregation.Builder aggregationBuilder = Aggregation.newBuilder();
-    getGroupByItems()
-        .forEach(
-            tiByItem ->
-                aggregationBuilder.addGroupBy(
-                    ProtoConverter.toProto(tiByItem.getExpr(), colOffsetInFieldMap)));
+    List<ByItem> byItems = getGroupByItems();
+    byItems.forEach(
+        tiByItem ->
+            aggregationBuilder.addGroupBy(
+                ProtoConverter.toProto(tiByItem.getExpr(), colOffsetInFieldMap)));
+    int outputOffsetLen = dagRequestBuilder.getOutputOffsetsList().size();
+    for (int i = 0; i < byItems.size(); i++) {
+      dagRequestBuilder.addOutputOffsets(outputOffsetLen + i);
+    }
     getAggregates()
         .forEach(
             tiExpr ->

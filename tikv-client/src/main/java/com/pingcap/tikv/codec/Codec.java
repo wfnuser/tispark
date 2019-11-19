@@ -509,6 +509,18 @@ public class Codec {
       int hour = hms >> 12;
       int microsec = (int) (packed % (1 << 24));
 
+      return createExtendedDateTime(tz, day, month, year, second, minute, hour, microsec);
+    }
+
+    public static ExtendedDateTime createExtendedDateTime(
+        DateTimeZone tz,
+        int day,
+        int month,
+        int year,
+        int second,
+        int minute,
+        int hour,
+        int microsec) {
       try {
         DateTime dateTime =
             new DateTime(year, month, day, hour, minute, second, microsec / 1000, tz);

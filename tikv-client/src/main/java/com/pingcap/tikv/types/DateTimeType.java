@@ -71,4 +71,9 @@ public class DateTimeType extends AbstractDateTimeType {
   public DateTime getOriginDefaultValueNonNull(String value, long version) {
     return Converter.convertToDateTime(value).getDateTime();
   }
+
+  @Override
+  public boolean isSupportPushDown() {
+    return true;
+  }
 }

@@ -4,11 +4,11 @@ import com.pingcap.tikv.row.Row;
 import com.pingcap.tikv.types.DataType;
 import java.math.BigDecimal;
 
-public class RowwiseTiColumnarVector extends TiColumnVector {
+public class TiRowColumnVector extends TiColumnVector {
   private Row[] rows;
   private int colIdx;
   /** Sets up the data type of this column vector. */
-  public RowwiseTiColumnarVector(DataType type, int colIdx, Row[] rows, int numOfRows) {
+  public TiRowColumnVector(DataType type, int colIdx, Row[] rows, int numOfRows) {
     super(type, numOfRows);
     this.rows = rows;
     this.colIdx = colIdx;
@@ -96,7 +96,7 @@ public class RowwiseTiColumnarVector extends TiColumnVector {
    */
   @Override
   public float getFloat(int rowId) {
-    return 0;
+    return ((Number) rows[rowId].getDouble(colIdx)).floatValue();
   }
 
   /**

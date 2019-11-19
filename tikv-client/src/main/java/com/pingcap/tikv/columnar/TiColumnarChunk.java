@@ -6,6 +6,7 @@ public class TiColumnarChunk {
 
   public TiColumnarChunk(TiColumnVector[] columnVectors) {
     this.columnVectors = columnVectors;
+    this.numOfRows = columnVectors[0].numOfRows();
   }
 
   public TiColumnVector column(int ordinal) {

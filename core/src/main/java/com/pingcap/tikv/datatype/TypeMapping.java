@@ -2,7 +2,11 @@ package com.pingcap.tikv.datatype;
 
 import static com.pingcap.tikv.types.MySQLType.TypeLonglong;
 
+import com.pingcap.tikv.types.BytesType;
+import com.pingcap.tikv.types.Charset;
 import com.pingcap.tikv.types.DataType;
+import com.pingcap.tikv.types.StringType;
+import java.util.Arrays;
 import org.apache.spark.sql.types.DataTypes;
 
 public class TypeMapping {
@@ -15,6 +19,10 @@ public class TypeMapping {
       case TypeLongBlob:
       case TypeTinyBlob:
       case TypeMediumBlob:
+        // handle blob may contains string value
+        if(!Charset.CharsetBin.equals(type.getCharset())) {
+          return DataTypes.StringType;
+        }
         return DataTypes.BinaryType;
       case TypeNewDate:
       case TypeDate:
@@ -23,6 +31,7 @@ public class TypeMapping {
       case TypeTimestamp:
         return DataTypes.TimestampType;
       case TypeFloat:
+        return DataTypes.FloatType;
       case TypeDouble:
         return DataTypes.DoubleType;
       case TypeVarchar:
@@ -31,6 +40,10 @@ public class TypeMapping {
       case TypeEnum:
       case TypeJSON:
       case TypeVarString:
+        if(Arrays.asList(BytesType.subTypes).contains(type.getType())
+            && Charset.CharsetBin.equals(type.getCharset())) {
+          return DataTypes.BinaryType;
+        }
         return DataTypes.StringType;
       case TypeNull:
         throw new UnsupportedOperationException("TypeNull is not supported");
